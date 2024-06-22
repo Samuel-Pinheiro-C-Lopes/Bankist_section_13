@@ -56,33 +56,264 @@ btnScrollTo.addEventListener("click", (e) => {
 
 // Cookie message
 
-const header = document.querySelector("header");
+// * const header = document.querySelector("header");
 
-const message = document.createElement('div');
+// * const message = document.createElement('div');
 
-message.classList.add("cookie-message");
+// * message.classList.add("cookie-message");
 
-message.innerHTML = `We use cookies for improved 
-functionality and analytcs. <button 
-class = 'btn btn--close-cookie'>Got it</button>`;
-
-
-header.append(message);
+// * message.innerHTML = `We use cookies for improved 
+// * functionality and analytcs. <button 
+// * class = 'btn btn--close-cookie'>Got it</button>`;
 
 
-document.querySelector('.btn--close-cookie')
-.addEventListener('click', () =>
-  message.remove()
-)
+// * header.append(message);
 
-message.style.backgroundColor = '#37383';
 
-message.style.width = '104%';
+// * document.querySelector('.btn--close-cookie')
+// * .addEventListener('click', () =>
+// * message.remove()
+// * )
 
-message.style.height = Number.parseFloat(getComputedStyle(message).height, 10) + 30 + 'px';
+// * message.style.backgroundColor = '#37383';
+
+// * message.style.width = '104%';
+
+// * message.style.height = Number.parseFloat(getComputedStyle(message).height, 10) + 30 + 'px';
 
 //////////////////////////////////////////////
 
+
+// TABBED COMPONENT
+
+const tabs = document.querySelectorAll('.operations__tab');
+const tabsContainer = document.querySelector('.operations__tab-container');
+const tabsContent = document.querySelectorAll('.operations__content');
+
+tabsContainer.addEventListener("click", function(e) {
+  const clicked = e.target.closest('.operations__tab');
+    
+  // Guard Clause - for the times clicked doesn't exist,
+  // when the parent component is clicked but not one of the buttons
+  if(!clicked) return;
+
+  // could use the tabs variable above...
+  // * [...this.children].forEach(el => {
+    // * if (el != clicked) el.classList.remove('operations__tab--active');
+    // * else el.classList.add('operations__tab--active');
+  // * })
+
+  // remove from all the buttons the active class to then give it to the right button
+  tabs.forEach(t => t.classList.remove('operations__tab--active'));
+  clicked.classList.add('operations__tab--active');
+  // * clicked.classList.add('operations__tab--active');
+
+
+  // remove from all the contents the active class to then give it to the right content
+  tabsContent.forEach(t => t.classList.remove('operations__content--active'));
+  document.querySelector(`.operations__content--${clicked.dataset.tab}`).classList.add('operations__content--active');
+
+
+});
+
+
+//////////////////////////////////////////////////////////////////
+
+// MENU FADE ANIMATION
+
+const nav = document.querySelector('.nav');
+
+const handleHover = function (e) 
+{
+  // the this keyword now isn't the element being interacted,
+  // but the argument passed by the bind method
+
+  // confirms if the mouse entered or exited a nav__link element
+  if (!e.target.classList.contains("nav__link")) return; // if not, return
+  
+  // link shall be the target - a nav__link element
+  const link = e.target;
+  // the siblings will be all the nav__link elements
+  const siblings = link.closest('.nav')
+  .querySelectorAll('.nav__link');
+  // logo is the only img withing the nav
+  const logo = link.closest('.nav').querySelector('img');
+
+  // all the siblings that aren't the link will have they
+  // opacity changed - the moused over element doesn't actually
+  // change opacity
+  siblings.forEach(el => {
+    if (el != link) el.style.opacity = this;
+  });
+  // and the logo
+  logo.style.opacity = this;
+}
+
+// Passing "argument" to handler function - the argument will be the this keywork 
+// within the function
+nav.addEventListener('mouseover', handleHover.bind(0.5));
+nav.addEventListener('mouseout', handleHover.bind(1));
+
+// functional cleaner example, second way of finishing it
+// this would be replaced with this
+// * nav.addEventListener('mouseover', function(e) {
+  // * handleHover(e, 0.5);
+// * });
+// * nav.addEventListener('mouseout', function(e) {
+  // * handleHover(e, 1);
+// * });
+
+// First way of finishing it
+
+// * nav.addEventListener('mouseover', function(e) {
+  // * if (!e.target.classList.contains('nav__link')) return;
+  
+  // * const link = e.target;
+  // * const siblings = link.closest('.nav')
+  // * .querySelectorAll('.nav__link');
+  // * const logo = link.closest('.nav').querySelector('img');
+
+  // * console.log(siblings)
+  // * siblings.forEach(el => {
+    // * console.log('sibling el = ', el);
+    // * console.log('the link = ', link);
+    // * if (el != link) el.style.opacity = 0.5;
+  // * })
+
+  // * logo.style.opacity = 0.5;
+
+// * })
+// * nav.addEventListener('mouseout', function(e) {
+  // * if (!e.target.classList.contains('nav__link')) return;
+
+  // * [...nav.querySelectorAll('.nav__link')].forEach(el => el.style.opacity = 1);
+  // * logo.style.opacity = 1;
+
+  /*
+    first Solution from the class:
+    if (!e.target.classList.contains('nav__link')) return;
+  
+    const link = e.target;
+    const siblings = link.closest('.nav')
+    .querySelectorAll('.nav__link');
+    const logo = link.closest('.nav').querySelector('img');
+
+    console.log(siblings)
+    siblings.forEach(el => {
+      // * console.log('sibling el = ', el);
+      // * console.log('the link = ', link);
+      if (el != link) el.style.opacity = 1;
+    })
+
+    logo.style.opacity = 1;
+  */
+// * })
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+// STICKY NAVIGATION
+
+// not the most efficient way...
+// * const sect1coords = section1.getBoundingClientRect();
+
+// * window.addEventListener('scroll', function (e) {
+  // * console.log(window.scrollY);
+
+  // * if (this.scrollY > sect1coords.top) nav.classList.add('sticky');
+  // * else nav.classList.remove('sticky');
+
+// * });
+
+
+// intersection observer API
+
+// const obsCallback = function(entries, observer) {
+// *   entries.forEach(entry => {
+//     // * console.log(entry);
+//     // * if(entry.isIntersecting && entry.boundingClientRect.top >= section1.getBoundingClientRect().top) nav.classList.toggle('sticky');
+  
+// *   });
+
+// * };
+
+// * const obsOptions = {
+// *  root: null,
+// *  threshold: 0.1,
+// * };
+
+// observer created and set to observe an element
+// * const observer = new IntersectionObserver(obsCallback, obsOptions);
+// * observer.observe(section1);
+
+const header = document.querySelector('.header');
+const navHeight = nav.getBoundingClientRect().height;
+
+const stickyNav = function (entries, observer) {
+  entries.forEach(entry => {
+    // * console.log(entry);
+    if (!entry.isIntersecting) nav.classList.add("sticky");
+    else nav.classList.remove("sticky");
+
+    // * nav.classList.toggle('sticky');
+  });
+};
+
+const headerObsOptions = {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`,
+};
+
+const headerObserver = new IntersectionObserver(stickyNav, headerObsOptions);
+headerObserver.observe(header);
+
+///////////////////////////////////////////////////////////////////
+
+// REVEAL SECTION
+
+// All the sections are attributed to the allSections array variable
+const allSections = document.querySelectorAll('section');
+// * console.log(allSections);
+
+// function responsible
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry, ' and ', entries);
+  // * console.log(entry.target === allSections[1]);
+  if (!entry.isIntersecting) return;
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+
+const revealSectionOpt = {
+  root: null,
+  threshold: 0.10,
+};
+
+// new Intersection Observer that calls the revealSection function based of the options in the
+// revealSectionOpt object
+const sectionObserver = new 
+IntersectionObserver(revealSection,revealSectionOpt);
+
+// added the class section hidden to hide and move downward a little all the sections
+// and make the Intersection Observer observe each section
+allSections.forEach(section => {
+  section.classList.add('section--hidden');
+  sectionObserver.observe(section);
+});
+
+///////////////////////////////////////////////////////////////////////////
+
+
+// LAZY LOADING IMAGES
+
+
+
+
+//////////////////////////////////////////////////////////////////
 
 // PAGINATION
 
@@ -134,8 +365,12 @@ linksContainer.addEventListener("click", function(e) {
 
 
 
-/////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 // SELECTING ELEMENTS
 
@@ -433,34 +668,34 @@ linksContainer.addEventListener("click", function(e) {
 
   // MOVING INTO THE DOM
 
-  const h1 = document.querySelector('h1');
+  // * const h1 = document.querySelector('h1');
   // Going downwards: child
-  console.log(h1.querySelectorAll('.highlight'));
-  console.log(h1.childNodes);
-  console.log(h1.children);
-  h1.firstElementChild.style.color = 'white';
-  h1.lastElementChild.style.color = 'orangered';
+  // * console.log(h1.querySelectorAll('.highlight'));
+  // * console.log(h1.childNodes);
+  // * console.log(h1.children);
+  // * h1.firstElementChild.style.color = 'white';
+  // * h1.lastElementChild.style.color = 'orangered';
 
   // Going upwards: parents
-  console.log(h1.parentNode);
-  console.log(h1.parentElement);
+  // * console.log(h1.parentNode);
+  // * console.log(h1.parentElement);
 
   // The closest method works as the querySelectorAll, generating
   // all the upward elements or nodes
-  h1.closest('.header').style.background = 'var(--gradient-secondary)';
-  h1.closest('h1').style.background = 'var(--gradient-primary)';
+  // * h1.closest('.header').style.background = 'var(--gradient-secondary)';
+  // * h1.closest('h1').style.background = 'var(--gradient-primary)';
 
   // Going sideways: siblings
-  console.log(h1.previousElementSibling);
-  console.log(h1.nextElementSibling);
+  // * console.log(h1.previousElementSibling);
+  // * console.log(h1.nextElementSibling);
 
-  console.log(h1.nextSibling);
-  console.log(h1.previousSibling);
+  // * console.log(h1.nextSibling);
+  // * console.log(h1.previousSibling);
 
-  console.log(h1.parentElement.children);
+  // * console.log(h1.parentElement.children);
 
   // an awesome use of the spread operator to return an array from the HTML collection
   // (to then use the forEach method in it)
-  [...h1.parentElement.children].forEach(el => {
-    if (el != h1) el.style.transform = 'scale(0.5)'
-  });
+  // * [...h1.parentElement.children].forEach(el => {
+    // * if (el != h1) el.style.transform = 'scale(0.5)'
+  // * });
