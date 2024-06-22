@@ -281,7 +281,7 @@ const allSections = document.querySelectorAll('section');
 // function responsible
 const revealSection = function (entries, observer) {
   const [entry] = entries;
-  console.log(entry, ' and ', entries);
+  // * console.log(entry, ' and ', entries);
   // * console.log(entry.target === allSections[1]);
   if (!entry.isIntersecting) return;
   entry.target.classList.remove('section--hidden');
@@ -301,7 +301,7 @@ IntersectionObserver(revealSection,revealSectionOpt);
 // added the class section hidden to hide and move downward a little all the sections
 // and make the Intersection Observer observe each section
 allSections.forEach(section => {
-  section.classList.add('section--hidden');
+  // * section.classList.add('section--hidden');
   sectionObserver.observe(section);
 });
 
@@ -309,6 +309,165 @@ allSections.forEach(section => {
 
 
 // LAZY LOADING IMAGES
+
+const imgTargets = document.querySelectorAll('img[data-src]');
+
+const imgObserverOpt = {
+  root: null,
+  threshold: 0,
+  // without the code bellow it will not
+  // "lazy load" in advance
+  // * rootMargin: '200px'
+}
+
+const loadImages = function (entries, observer) {
+  const [entry] = entries;
+  if(!entry.isIntersecting) return;
+  const img = entry.target;
+
+  // * console.log(entry);
+  // * console.log(entry.target);
+
+  // could be img.src = img.dataset.src as well, in that case doesn't make a difference
+  img.setAttribute("src", img.dataset.src);
+
+  // The right way, change the blur only when the new image loads - makes a difference when using slower
+  // internet connections.
+  img.addEventListener('load', () => img.classList.remove('lazy-img'));
+
+  observer.unobserve(img);
+};
+
+const lazyImgObserver = new IntersectionObserver(loadImages, imgObserverOpt);
+imgTargets.forEach(img => lazyImgObserver.observe(img));
+
+
+//////////////////////////////////////////////////////////////////
+
+//MAKING THE SLIDE
+const sliders = function () {
+  const slides = document.querySelectorAll(".slide");
+  const slider = document.querySelector(".slider");
+  const sliderBtnRight = document.querySelector(".slider__btn--right");
+  const sliderBtnLeft = document.querySelector(".slider__btn--left");
+
+  // My initial solution: 
+
+  // * let curSlide = 0;
+  // * const maxSlides = slides.length - 1;
+
+  // * slider.style.overflow = "visible";
+  // * slider.style.transform = "scale(0.4) translateX(-1200px)";
+
+  // * const goToSlider = function(e) {
+  //   * if (curSlide === maxSlides && this === "right") curSlide = 0;
+  //   * else if (curSlide === 0 && this === "left") curSlide = maxSlides;
+  //   * else if (this === "right") curSlide++;
+  //   * else curSlide--;
+
+  //   * slides.forEach((s, i) => {
+  //     * s.style.transform = `translate(${100 * (i - curSlide)}%)`;
+  //   * });  
+  // * };
+
+  // * slides.forEach((s, i) => {
+  //   * s.style.transform = `translate(${100 * i}%)`;
+  // * });
+
+  // * sliderBtnRight.addEventListener("click", goToSlider.bind("right"));
+  // * sliderBtnLeft.addEventListener("click", goToSlider.bind("left"));
+
+  // Course solution - and the complete solution:
+
+  let curSlide = 0;
+  const maxSlide = slides.length;
+  const dotContainer = document.querySelector('.dots');
+
+  // create dots
+  const createDots = function () {
+    slides.forEach(function(_, i) {
+      dotContainer.insertAdjacentHTML('beforeend', `<button class = "dots__dot" data-slide=${i}></button>`)
+    })
+  };
+
+  // * slider.style.overflow = "visible";
+  // * slider.style.transform = "scale(0.4) translateX(-1200px)";
+  // slides.forEach((s, i) => {
+  //   s.style.transform = `translate(${100 * i}%)`;
+  // });
+
+  // Functions
+  const activateDot = function(slide) {
+    document.querySelectorAll('.dots__dot')
+    .forEach(dot => dot.classList.remove('dots__dot--active'));
+
+    document.querySelector(`.dots__dot[data-slide="${slide}"]`)
+    .classList.add("dots__dot--active");
+    // * [...dotContainer.children].forEach(dot => dot.classList.remove("dots__dot--active"));
+    // * e.target.classList.add("dots__dot--active");
+  };
+
+  // main function that changes the translation
+  // of the images to change the slides pages
+  const goToSlide = function (slide) {
+    slides.forEach(
+      (s, i) => (s.style.transform = `translateX(${100 * (i - slide)}%)`)
+    );
+  };
+
+  // next slide
+  const nextSlide = function () {
+    if (curSlide === maxSlide - 1) {
+      curSlide = 0;
+    } else {
+      curSlide++;
+    }
+
+    goToSlide(curSlide);
+    activateDot(curSlide);
+  };
+
+  // previous slide
+  const prevSlide = function () {
+    if (curSlide === 0) {
+      curSlide = maxSlide - 1;
+    } else {
+      curSlide--;
+    }
+
+    goToSlide(curSlide);
+    activateDot(curSlide);
+  }
+
+  // Init, preparing the slide and creating/setting the dots
+  const init = function() {
+    goToSlide(0);
+    createDots();
+    activateDot(0);
+  }()
+
+  // Event Handlers
+  sliderBtnRight.addEventListener("click", nextSlide);
+  sliderBtnLeft.addEventListener("click", prevSlide);
+
+  // changing the page with key arrows
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') prevSlide();
+    e.key === 'ArrowRight' && nextSlide();
+    activateDot(curSlide);
+  })
+
+  // selecting the page with the dots
+  dotContainer.addEventListener("click", function(e) {
+    if(!e.target.classList.contains("dots__dot")) return;
+    // dataset has .slide within, using {slide} syntax works
+    const {slide} = e.target.dataset;
+    goToSlide(slide);
+    activateDot(slide);
+  })
+}
+sliders();
+
 
 
 
